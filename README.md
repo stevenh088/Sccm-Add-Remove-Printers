@@ -1,11 +1,11 @@
 <h1> Sccm Add/Remove Printers</h1>
 
-<h2>Descriptsion:</h2>
+<h2>Description</h2>
 A tool to add or remove printers from to sccm using a csv, direct name, or from a printer server.
 
 This tool could be modified to add another type of application in bulk, it would need modified in the code, however.
 
-<h2>Usage:</h2>
+<h2>Usage</h2>
 Change app_config.json in the release/debug folder to match your environment.
 
 Requires rights to both sccm and a printerserver(s), the printer server in the config servers mainly as a default,
@@ -19,9 +19,9 @@ Adding a printer multiple times will modify it, however, doing so too many times
 
 When removing printers the program will remove the application, its versions, and all deployments. The collection should be manually      removed. This was done intentionally.
 
-<h2>Known Bugs:</h2>
+<h2>Known Bugs</h2>
 There are some situations where this application can crash when cancelling.
 
-<h3>Other Notes:</h3>
+<h3>Other Notes</h3>
 I do not claim to be the greatest programmer, this program may not be the "best" way to code, however I do attempt
 to follow best practices. Any advice or upgrades is welcome.
