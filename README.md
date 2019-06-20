@@ -19,7 +19,7 @@ Adding a printer multiple times will modify it, however, doing so too many times
 
 When removing printers the program will remove the application, its versions, and all deployments. The collection should be manually      removed. This was done intentionally.
 
-<h2>Known Bugs: <h2>
+<h2>Known Bugs:</h2>
 There are some situations where this application can crash when cancelling.
 
 <h3>Other Notes:</h3>
