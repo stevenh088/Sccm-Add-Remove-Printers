@@ -5,7 +5,7 @@ A tool to add or remove printers from to sccm using a csv, direct name, or from 
 
 This tool could be modified to add another type of application in bulk, it would need modified in the code, however.
 
-<h2>Usage</h2>
+<h3>Usage</h3>
 Change app_config.json in the release/debug folder to match your environment.
 
 Requires rights to both sccm and a printerserver(s), the printer server in the config servers mainly as a default,
