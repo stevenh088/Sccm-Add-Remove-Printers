@@ -31,6 +31,7 @@ When attempting to deploy the same printer to both a user and device collection 
 I do not claim to be the greatest programmer, this program may not be the "best" way to code, however I do attempt
 to follow best practices. Any advice or upgrades is welcome.
 
-Open source projects and general help online have been extremely useful in my career. My hopes are that this along with anything else I produce will be a way to contribute to the community and help others as I was.
+Open source projects such as this and general help online have been extremely useful in my career. 
+My hopes are that this along with anything else I produce will be a way to contribute back to the community and help others as I was.
 
 There are some features and/or bugs that may be added/fixed in later releases.
