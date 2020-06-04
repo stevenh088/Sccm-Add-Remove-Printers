@@ -52,23 +52,14 @@ namespace Add_Application
             this.removeAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenuStrip2 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.clearToolStripMenu = new System.Windows.Forms.ToolStripMenuItem();
-            this.useSccm = new System.Windows.Forms.CheckBox();
-            this.availableRadio = new System.Windows.Forms.RadioButton();
-            this.requiredRadio = new System.Windows.Forms.RadioButton();
-            this.deviceColRadio = new System.Windows.Forms.RadioButton();
-            this.userColRadio = new System.Windows.Forms.RadioButton();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.contextMenuStrip1.SuspendLayout();
             this.contextMenuStrip2.SuspendLayout();
-            this.groupBox1.SuspendLayout();
-            this.groupBox2.SuspendLayout();
             this.SuspendLayout();
             // 
             // listBox1
             // 
             this.listBox1.FormattingEnabled = true;
-            this.listBox1.Location = new System.Drawing.Point(12, 423);
+            this.listBox1.Location = new System.Drawing.Point(12, 389);
             this.listBox1.Name = "listBox1";
             this.listBox1.SelectionMode = System.Windows.Forms.SelectionMode.MultiSimple;
             this.listBox1.Size = new System.Drawing.Size(493, 238);
@@ -143,7 +134,7 @@ namespace Add_Application
             // checkBox1
             // 
             this.checkBox1.AutoSize = true;
-            this.checkBox1.Location = new System.Drawing.Point(84, 356);
+            this.checkBox1.Location = new System.Drawing.Point(12, 356);
             this.checkBox1.Name = "checkBox1";
             this.checkBox1.Size = new System.Drawing.Size(112, 17);
             this.checkBox1.TabIndex = 7;
@@ -167,7 +158,7 @@ namespace Add_Application
             // Remove
             // 
             this.Remove.AutoSize = true;
-            this.Remove.Location = new System.Drawing.Point(12, 356);
+            this.Remove.Location = new System.Drawing.Point(130, 356);
             this.Remove.Name = "Remove";
             this.Remove.Size = new System.Drawing.Size(66, 17);
             this.Remove.TabIndex = 9;
@@ -177,7 +168,7 @@ namespace Add_Application
             // 
             // List
             // 
-            this.List.Location = new System.Drawing.Point(312, 356);
+            this.List.Location = new System.Drawing.Point(233, 354);
             this.List.Name = "List";
             this.List.Size = new System.Drawing.Size(73, 27);
             this.List.TabIndex = 10;
@@ -192,7 +183,6 @@ namespace Add_Application
             this.columnHeader1,
             this.columnHeader2});
             this.listView1.FullRowSelect = true;
-            this.listView1.HideSelection = false;
             this.listView1.LabelEdit = true;
             this.listView1.Location = new System.Drawing.Point(12, 39);
             this.listView1.Name = "listView1";
@@ -245,107 +235,21 @@ namespace Add_Application
             this.contextMenuStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.clearToolStripMenu});
             this.contextMenuStrip2.Name = "contextMenuStrip2";
-            this.contextMenuStrip2.Size = new System.Drawing.Size(102, 26);
+            this.contextMenuStrip2.Size = new System.Drawing.Size(181, 48);
             // 
             // clearToolStripMenu
             // 
             this.clearToolStripMenu.Name = "clearToolStripMenu";
-            this.clearToolStripMenu.Size = new System.Drawing.Size(101, 22);
+            this.clearToolStripMenu.Size = new System.Drawing.Size(180, 22);
             this.clearToolStripMenu.Text = "Clear";
             this.clearToolStripMenu.Click += new System.EventHandler(this.ClearToolStripMenu_Click);
-            // 
-            // useSccm
-            // 
-            this.useSccm.AutoSize = true;
-            this.useSccm.Enabled = false;
-            this.useSccm.Location = new System.Drawing.Point(202, 356);
-            this.useSccm.Name = "useSccm";
-            this.useSccm.Size = new System.Drawing.Size(93, 17);
-            this.useSccm.TabIndex = 12;
-            this.useSccm.Text = "Search SCCM";
-            this.useSccm.UseVisualStyleBackColor = true;
-            // 
-            // availableRadio
-            // 
-            this.availableRadio.AutoSize = true;
-            this.availableRadio.Checked = true;
-            this.availableRadio.Location = new System.Drawing.Point(6, 12);
-            this.availableRadio.Name = "availableRadio";
-            this.availableRadio.Size = new System.Drawing.Size(68, 17);
-            this.availableRadio.TabIndex = 13;
-            this.availableRadio.TabStop = true;
-            this.availableRadio.Text = "Available";
-            this.availableRadio.UseVisualStyleBackColor = true;
-            //this.availableRadio.CheckedChanged += new System.EventHandler(this.RadioButtons_CheckedChanged);
-            // 
-            // requiredRadio
-            // 
-            this.requiredRadio.AutoSize = true;
-            this.requiredRadio.Location = new System.Drawing.Point(80, 12);
-            this.requiredRadio.Name = "requiredRadio";
-            this.requiredRadio.Size = new System.Drawing.Size(68, 17);
-            this.requiredRadio.TabIndex = 14;
-            this.requiredRadio.TabStop = true;
-            this.requiredRadio.Text = "Required";
-            this.requiredRadio.UseVisualStyleBackColor = true;
-            //this.requiredRadio.CheckedChanged += new System.EventHandler(this.RadioButtons_CheckedChanged);
-            // 
-            // deviceColRadio
-            // 
-            this.deviceColRadio.AutoSize = true;
-            this.deviceColRadio.Location = new System.Drawing.Point(80, 12);
-            this.deviceColRadio.Name = "deviceColRadio";
-            this.deviceColRadio.Size = new System.Drawing.Size(80, 17);
-            this.deviceColRadio.TabIndex = 16;
-            this.deviceColRadio.TabStop = true;
-            this.deviceColRadio.Text = "Device Col.";
-            this.deviceColRadio.UseVisualStyleBackColor = true;
-            //this.deviceColRadio.CheckedChanged += new System.EventHandler(this.RadioButtons_CheckedChanged);
-            // 
-            // userColRadio
-            // 
-            this.userColRadio.AutoSize = true;
-            this.userColRadio.Checked = true;
-            this.userColRadio.Location = new System.Drawing.Point(6, 12);
-            this.userColRadio.Name = "userColRadio";
-            this.userColRadio.Size = new System.Drawing.Size(68, 17);
-            this.userColRadio.TabIndex = 15;
-            this.userColRadio.TabStop = true;
-            this.userColRadio.Text = "User Col.";
-            this.userColRadio.UseVisualStyleBackColor = true;
-            //this.userColRadio.CheckedChanged += new System.EventHandler(this.RadioButtons_CheckedChanged);
-            // 
-            // groupBox1
-            // 
-            this.groupBox1.Controls.Add(this.availableRadio);
-            this.groupBox1.Controls.Add(this.requiredRadio);
-            this.groupBox1.Location = new System.Drawing.Point(12, 382);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(181, 35);
-            this.groupBox1.TabIndex = 17;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Assignment Type";
-            // 
-            // groupBox2
-            // 
-            this.groupBox2.Controls.Add(this.userColRadio);
-            this.groupBox2.Controls.Add(this.deviceColRadio);
-            this.groupBox2.Location = new System.Drawing.Point(215, 382);
-            this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(174, 35);
-            this.groupBox2.TabIndex = 18;
-            this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "Collection  Type";
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.Cancel;
-            this.ClientSize = new System.Drawing.Size(519, 673);
-            this.Controls.Add(this.groupBox2);
-            this.Controls.Add(this.groupBox1);
-            this.Controls.Add(this.useSccm);
+            this.ClientSize = new System.Drawing.Size(519, 633);
             this.Controls.Add(this.listView1);
             this.Controls.Add(this.List);
             this.Controls.Add(this.Remove);
@@ -364,10 +268,6 @@ namespace Add_Application
             this.Text = "Add Printers";
             this.contextMenuStrip1.ResumeLayout(false);
             this.contextMenuStrip2.ResumeLayout(false);
-            this.groupBox1.ResumeLayout(false);
-            this.groupBox1.PerformLayout();
-            this.groupBox2.ResumeLayout(false);
-            this.groupBox2.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -395,13 +295,6 @@ namespace Add_Application
         private System.Windows.Forms.ToolStripMenuItem removeAllToolStripMenuItem;
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip2;
         private System.Windows.Forms.ToolStripMenuItem clearToolStripMenu;
-        private System.Windows.Forms.CheckBox useSccm;
-        private System.Windows.Forms.RadioButton availableRadio;
-        private System.Windows.Forms.RadioButton requiredRadio;
-        private System.Windows.Forms.RadioButton deviceColRadio;
-        private System.Windows.Forms.RadioButton userColRadio;
-        private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.GroupBox groupBox2;
     }
 }
 
