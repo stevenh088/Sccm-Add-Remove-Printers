@@ -1,14 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using System.IO;
-using Microsoft.ConfigurationManagement.AdminConsole.AppManFoundation;
+﻿using Microsoft.ConfigurationManagement.AdminConsole.AppManFoundation;
 using Microsoft.ConfigurationManagement.ApplicationManagement;
 using Microsoft.ConfigurationManagement.DesiredConfigurationManagement;
 using Microsoft.ConfigurationManagement.DesiredConfigurationManagement.ExpressionOperators;
@@ -16,12 +6,17 @@ using Microsoft.ConfigurationManagement.ManagementProvider;
 using Microsoft.ConfigurationManagement.ManagementProvider.WqlQueryEngine;
 using Microsoft.SystemsManagementServer.DesiredConfigurationManagement.Expressions;
 using Microsoft.SystemsManagementServer.DesiredConfigurationManagement.Rules;
-using Microsoft.VisualBasic;
 using Microsoft.VisualBasic.FileIO;
-using System.Threading;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.IO;
+using System.Linq;
 using System.Management;
-using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace Add_Application
 {
@@ -51,6 +46,11 @@ namespace Add_Application
         string sPrinter;
         string sModel;
         bool bCancel;
+        int offerTypeId = 2;
+        int collectionType = 1;
+        string limitToCollectionID = "SMS00004";
+        string limitToCollectionName = "All Users and User Groups";
+        string deploymentTargetType = "user";
 
         CancellationTokenSource source = new CancellationTokenSource();
 
@@ -110,7 +110,7 @@ namespace Add_Application
                 }
                 label2.Text = "Example:Printer Name or Browse";
             }
-            updateListBox("--------------------------------------------------------------------CONNECTED-------------------------------------------------------------------------");
+            updateListBox("----------------------------------------------------------------------CONNECTED-------------------------------------------------------------------------");
             updateListBox("");
         }
 
@@ -183,25 +183,26 @@ namespace Add_Application
             return app;
         }
 
-        public static DeploymentType CreateScriptDt(string title, string description, string installCommandLine, string uninstallCommandline, string detectionScript, string contentFolder, Microsoft.ConfigurationManagement.ApplicationManagement.Application application, string printerServer, string printerName)
+        public DeploymentType CreateScriptDt(string title, string description, string installCommandLine, string uninstallCommandline, string contentFolder, Microsoft.ConfigurationManagement.ApplicationManagement.Application application, string printerServer, string printerName)
         {
             Validator.CheckForNull(installCommandLine, "installCommandLine");
             Validator.CheckForNull(uninstallCommandline, "uninstallCommandLine");
             Validator.CheckForNull(title, "title");
-            Validator.CheckForNull(detectionScript, "detectionScript");
+            //Validator.CheckForNull(detectionScript, "detectionScript");
             Log("Creating Script DeploymentType.");
             ScriptInstaller installer = new ScriptInstaller();
             installer.InstallCommandLine = installCommandLine;
             installer.UninstallCommandLine = uninstallCommandline;
-            installer.RequiresLogOn = true;
-            installer.UserInstall = true;
-            installer.MachineInstall = false;
+            //installer.RequiresLogOn = true;
+            //installer.UserInstall = true;
+            //installer.MachineInstall = false;
+            installer.ExecutionContext = Microsoft.ConfigurationManagement.ApplicationManagement.ExecutionContext.Any;
             installer.UserInteractionMode = UserInteractionMode.Hidden;
-            installer.RequiresUserInteraction = true;
+            installer.RequiresUserInteraction = false;
             installer.MaxExecuteTime = 15;
             installer.ExecuteTime = 1;
-            installer.ExecutionContext = Microsoft.ConfigurationManagement.ApplicationManagement.ExecutionContext.User;
-            installer.DetectionScript = new Script { Text = detectionScript, Language = ScriptLanguage.JavaScript.ToString() };
+            //installer.DetectionScript = new Script { Text = detectionScript, Language = ScriptLanguage.JavaScript.ToString() };
+
 
             //Create Detection Method//
             installer.DetectionMethod = DetectionMethod.Enhanced;
@@ -211,6 +212,13 @@ namespace Add_Application
             RegistrySetting registrySetting = new RegistrySetting(null);
             registrySetting.RootKey = RegistryRootKey.CurrentUser;
             registrySetting.Key = @"Software\Microsoft\Windows NT\CurrentVersion\PrinterPorts";
+
+            if (deviceColRadio.Checked)
+            {
+                registrySetting.RootKey = RegistryRootKey.LocalMachine;
+                registrySetting.Key = @"Software\Microsoft\Windows NT\CurrentVersion\PrinterPorts";
+            }
+
             registrySetting.Is64Bit = true;
             registrySetting.ValueName = "\\\\" + printerServer + "\\" + printerName;
             registrySetting.CreateMissingPath = false;
@@ -254,10 +262,51 @@ namespace Add_Application
                     installer.Contents.Add(content);
                 }
             }
+            if (parameter == "device" || deviceColRadio.Checked)
+            { 
+            installer.DetectionMethod = DetectionMethod.Script;
+            installer.DetectionScript = new Script { Text = "write - host hello and some really long string like this", Language = ScriptingLanguage.PowerShell.ToString() };
+            //string scriptText = "$array = @()"+ Environment.NewLine + "$computername = $env:COMPUTERNAME"+ Environment.NewLine + "$printersKey = "+ ((char)34) + "SOFTWARE" + ((char)92) + "Microsoft"+ ((char)92) + "Windows NT" + ((char)92) + " CurrentVersion" + ((char)92) + " Print" + ((char)92) + " Connections" + ((char)34) +""+ Environment.NewLine + "$reg=[microsoft.win32.registrykey]::OpenRemoteBaseKey('LocalMachine',$computername,'Registry64')"+ Environment.NewLine + "$regkey=$reg.OpenSubKey($printersKey)"+ Environment.NewLine + "$subkeys=$regkey.GetSubKeyNames()"+ Environment.NewLine + "$printerFound = $false"+ Environment.NewLine + "foreach($key in $subkeys){"+ Environment.NewLine + "$thisKey=$printersKey+$key "+ Environment.NewLine + "$printer = Get-ItemProperty -Path "+ ((char)34) + "HKLM:" + ((char)92) + " $thiskey" + ((char)34) +" | Select -ExpandProperty Printer"+ Environment.NewLine + "If ($printer -eq "+ ((char)34) + ((char)92) + ((char)92) + printerServer + ((char)92) + printerName + ")"+ Environment.NewLine + "{"+ Environment.NewLine + "$printerFound = $true"+ Environment.NewLine + "break"+ Environment.NewLine + "}"+ Environment.NewLine + "} "+ Environment.NewLine + "If ($printerFound)"+ Environment.NewLine + "{"+ Environment.NewLine + "Write-Host "+ ((char)34) +"Found"+ ((char)34) +""+ Environment.NewLine + "}"+ Environment.NewLine + "Else { }";
+            //installer.DetectionScript.Text = scriptText.ToString();
+            installer.DetectionScript.Text = 
+@"
+$array = @()
+$computername = $env: COMPUTERNAME
+$printersKey = ""SOFTWARE\Microsoft\Windows NT\CurrentVersion\Print\Connections\""
+$reg=[microsoft.win32.registrykey]::OpenRemoteBaseKey('LocalMachine',$computername,'Registry64')
+$regkey=$reg.OpenSubKey($printersKey) 
+$subkeys=$regkey.GetSubKeyNames() 
+$printerFound = $false
+foreach($key in $subkeys){
+
+$thisKey=$printersKey+$key 
+
+$printer = Get-ItemProperty -Path ""HKLM:\$thiskey"" | Select -ExpandProperty Printer
+
+If ($printer -eq """ + "\\\\" + printerServer + "\\" + printerName + @""")
+{
+    $printerFound = $true
+    break
+}
+
+} 
+
+If ($printerFound)
+{
+    Write-Host ""Found""
+}
+Else
+{
+}
+";
+            }
             DeploymentType dt = new DeploymentType(installer, ScriptInstaller.TechnologyId, NativeHostingTechnology.TechnologyId);
             dt.Title = "Printer";
-            ehd.Rule = rule;
-            installer.EnhancedDetectionMethod = ehd;
+            if (parameter == "user" || userColRadio.Checked)
+            {
+                ehd.Rule = rule;
+                installer.EnhancedDetectionMethod = ehd;
+            }
             return dt;
         }
 
@@ -301,6 +350,35 @@ namespace Add_Application
                 //return null;
             }
         }
+
+        public List<string> QueryApplicationsInFolder(WqlConnectionManager connection, int folderId)
+        {
+            try
+            {
+                string query = "Select InstanceKey from SMS_ObjectContainerItem where ObjectType='6000' and  ContainerNodeID='" + folderId + "'";
+                WqlQueryResultsObject listOfInstanceKeys = connection.QueryProcessor.ExecuteQuery(query) as WqlQueryResultsObject;
+                List<string> displayNames = new List<string>();
+                foreach (WqlResultObject key in listOfInstanceKeys)
+                {
+                    //(Get - WmiObject - Namespace "ROOT\SMS\Site_XXX" - Query "select * from SMS_Applicationlatest  where ModelName = '$key'").LocalizedDisplayName
+                    string query1 = "select LocalizedDisplayName from SMS_Applicationlatest  where ModelName = '" + key["InstanceKey"].StringValue + "'";
+                    WqlQueryResultsObject localizedDisplayNames = connection.QueryProcessor.ExecuteQuery(query1) as WqlQueryResultsObject;
+                    foreach (WqlResultObject displayName in localizedDisplayNames)
+                    {
+                        displayNames.Add(displayName["LocalizedDisplayName"].StringValue);
+                    }
+                }
+                return displayNames;
+            }
+
+            catch (SmsException ex)
+            {
+                listBox1.BeginInvoke(new MyDelegate(updateListBox), "Failed to list applications. Error: " + ex.Message);
+                throw;
+                //return null;
+            }
+        }
+
         public IResultObject QueryCollections(WqlConnectionManager connection, string printerName)
         {
 
@@ -349,11 +427,17 @@ namespace Add_Application
         }
         public IResultObject CreateCollection(WqlConnectionManager connection, string printerName)
         {
-            int collectionType = 1;
-            string limitToCollectionID = "SMS00004";
-            string limitToCollectionName = "All Users and User Groups";
+            //int collectionType = 1;
+            //string limitToCollectionID = "SMS00004";
+            //string limitToCollectionName = "All Users and User Groups";
+            if (parameter == "user" || userColRadio.Checked)
+            {
+                collectionType = 1;
+                limitToCollectionID = "SMS00004";
+                limitToCollectionName = "All Users and User Groups";
+            }
 
-            if (parameter == "device")
+            if (parameter == "device" || deviceColRadio.Checked)
             {
                 collectionType = 2;
                 limitToCollectionID = "SMS00001";
@@ -472,8 +556,6 @@ namespace Add_Application
             newAssignment["DPLocality"].IntegerValue = 80;
             newAssignment["Enabled"].BooleanValue = true;
 
-            //.EnforcementDeadline
-
             //.EvaluationSchedule
 
             //.ExpirationTime
@@ -487,7 +569,29 @@ namespace Add_Application
             //.NonComplianceCriticality
             newAssignment["NotifyUser"].BooleanValue = false;
             newAssignment["OfferFlags"].IntegerValue = 0;
-            newAssignment["OfferTypeID"].IntegerValue = 2;
+
+            if (collectionName == allPrintersCollectionName)
+            {
+                newAssignment["OfferTypeID"].IntegerValue = 2;
+            }
+            else
+            {
+                if (availableRadio.Checked)
+                {
+                    offerTypeId = 2;
+                }
+                else
+                {
+                    offerTypeId = 0;
+                }
+                newAssignment["OfferTypeID"].IntegerValue = offerTypeId;
+                if (offerTypeId == 0)
+                {
+                    string iDate = "02/01/1970";
+                    newAssignment["EnforcementDeadline"].DateTimeValue = Convert.ToDateTime(iDate); //DateTime.Now;
+                }
+            }
+
             newAssignment["OverrideServiceWindows"].BooleanValue = false;
             newAssignment["PersistOnWriteFilterDevices"].BooleanValue = false;
 
@@ -530,61 +634,61 @@ namespace Add_Application
         //    newAssignment["AssignmentAction"].IntegerValue = 2;
         //    newAssignment["AssignmentDescription"].StringValue = "";
 
-            //.AssignmentID
+        //.AssignmentID
         //    newAssignment["AssignmentName"].StringValue = app["LocalizedDisplayName"].StringValue + "_" + app["LocalizedDisplayName"] + "Install";
         //    newAssignment["AssignmentType"].IntegerValue = 2;
 
-            //.AssignmentUniqueID
+        //.AssignmentUniqueID
         //    newAssignment["CollectionName"].StringValue = allPrintersCollectionName;
 
-            //.ContainsExpiredUpdates
+        //.ContainsExpiredUpdates
 
-            //.CreationTime
-          //  newAssignment["DesiredConfigType"].IntegerValue = 1;
-          //  newAssignment["DisableMomAlerts"].BooleanValue = false;
-          //  newAssignment["DPLocality"].IntegerValue = 80;
-          //  newAssignment["Enabled"].BooleanValue = true;
+        //.CreationTime
+        //  newAssignment["DesiredConfigType"].IntegerValue = 1;
+        //  newAssignment["DisableMomAlerts"].BooleanValue = false;
+        //  newAssignment["DPLocality"].IntegerValue = 80;
+        //  newAssignment["Enabled"].BooleanValue = true;
 
-            //.EnforcementDeadline
+        //.EnforcementDeadline
 
-            //.EvaluationSchedule
+        //.EvaluationSchedule
 
-            //.ExpirationTime
+        //.ExpirationTime
 
-            //.LastModificationTime
+        //.LastModificationTime
 
-            //.LastModifiedBy
-          //  newAssignment["LocaleID"].IntegerValue = 1033;
-          //  newAssignment["LogComplianceToWinEvent"].BooleanValue = false;
+        //.LastModifiedBy
+        //  newAssignment["LocaleID"].IntegerValue = 1033;
+        //  newAssignment["LogComplianceToWinEvent"].BooleanValue = false;
 
-            //.NonComplianceCriticality
-          //  newAssignment["NotifyUser"].BooleanValue = false;
-          //  newAssignment["OfferFlags"].IntegerValue = 0;
-          //  newAssignment["OfferTypeID"].IntegerValue = 2;
-          //  newAssignment["OverrideServiceWindows"].BooleanValue = false;
-          //  newAssignment["PersistOnWriteFilterDevices"].BooleanValue = false;
+        //.NonComplianceCriticality
+        //  newAssignment["NotifyUser"].BooleanValue = false;
+        //  newAssignment["OfferFlags"].IntegerValue = 0;
+        //  newAssignment["OfferTypeID"].IntegerValue = 2;
+        //  newAssignment["OverrideServiceWindows"].BooleanValue = false;
+        //  newAssignment["PersistOnWriteFilterDevices"].BooleanValue = false;
 
-            //.PolicyBinding
-          //  newAssignment["Priority"].IntegerValue = 1;
-          //  newAssignment["RaiseMomAlertsOnFailure"].BooleanValue = false;
-          //  newAssignment["RebootOutsideOfServiceWindows"].BooleanValue = false;
-          //  newAssignment["RequireApproval"].BooleanValue = false;
-          //  newAssignment["SendDetailedNonComplianceStatus"].BooleanValue = false;
-          //  newAssignment["SoftDeadlineEnabled"].BooleanValue = false;
-          //  newAssignment["SourceSite"].IntegerValue = 720;
-          //  newAssignment["StartTime"].StringValue = ("19700201000000.000000+***");
-          //  newAssignment["StateMessagePriority"].IntegerValue = 5;
-          //  newAssignment["SuppressReboot"].IntegerValue = 0;
-          //  newAssignment["TargetCollectionID"].StringValue = allPrintersCollectionID;
+        //.PolicyBinding
+        //  newAssignment["Priority"].IntegerValue = 1;
+        //  newAssignment["RaiseMomAlertsOnFailure"].BooleanValue = false;
+        //  newAssignment["RebootOutsideOfServiceWindows"].BooleanValue = false;
+        //  newAssignment["RequireApproval"].BooleanValue = false;
+        //  newAssignment["SendDetailedNonComplianceStatus"].BooleanValue = false;
+        //  newAssignment["SoftDeadlineEnabled"].BooleanValue = false;
+        //  newAssignment["SourceSite"].IntegerValue = 720;
+        //  newAssignment["StartTime"].StringValue = ("19700201000000.000000+***");
+        //  newAssignment["StateMessagePriority"].IntegerValue = 5;
+        //  newAssignment["SuppressReboot"].IntegerValue = 0;
+        //  newAssignment["TargetCollectionID"].StringValue = allPrintersCollectionID;
 
-            //.UpdateDeadline
-          //  newAssignment["UpdateSupersedence"].BooleanValue = false;
-          //  newAssignment["UseGMTTimes"].BooleanValue = true;
-          //  newAssignment["UserUIExperience"].BooleanValue = true;
-          //  newAssignment["WoLEnabled"].BooleanValue = false;
+        //.UpdateDeadline
+        //  newAssignment["UpdateSupersedence"].BooleanValue = false;
+        //  newAssignment["UseGMTTimes"].BooleanValue = true;
+        //  newAssignment["UserUIExperience"].BooleanValue = true;
+        //  newAssignment["WoLEnabled"].BooleanValue = false;
 
-            //.PSComputerName = "SCCM01"
-          //  newAssignment.Put();
+        //.PSComputerName = "SCCM01"
+        //  newAssignment.Put();
 
 
 
@@ -598,31 +702,48 @@ namespace Add_Application
 
         public void ParseText()
         {
-            string rgx = @"\\\\.*\\[^/]*";
-            Match match = findMatch(textBox1.Text, rgx);
-            if (match.Success)
+            string[] args = Environment.GetCommandLineArgs();
+            foreach (string arg in args)
             {
-                if (textBox1.Text.Contains("/model"))
+                if (arg != "")
                 {
-                    string[] model = textBox1.Text.Split('/');
-                    sModel = model[1].Replace("model", "");
-                    sModel = sModel.Replace(" ", "");
-                    string[] words = model[0].Split('\\');
-                    sPrinterServer = words[2];
-                    sPrinter = words[3];
+                    parameter = arg;
                 }
-                else
-                {
-                    string[] words = textBox1.Text.Split('\\');
-                    sPrinterServer = words[2];
-                    sPrinter = words[3];
-                    sModel = "N/A";
-                }
-                ListViewItem item1 = new ListViewItem(sPrinter);
-                item1.SubItems.Add(sPrinterServer);
-                item1.SubItems.Add(sModel);
-                listView1.Items.Add(item1);
             }
+            if (parameter == "remove" | parameter == "/remove" | Remove.Checked == true)
+            {
+                sPrinter = textBox1.Text;
+                sPrinterServer = "";
+                sModel = "";
+            }
+            else
+            {
+                string rgx = @"\\\\.*\\[^/]*";
+                Match match = findMatch(textBox1.Text, rgx);
+                if (match.Success)
+                {
+                    if (textBox1.Text.Contains("/model"))
+                    {
+                        string[] model = textBox1.Text.Split('/');
+                        sModel = model[1].Replace("model", "");
+                        sModel = sModel.Replace(" ", "");
+                        string[] words = model[0].Split('\\');
+                        sPrinterServer = words[2];
+                        sPrinter = words[3];
+                    }
+                    else
+                    {
+                        string[] words = textBox1.Text.Split('\\');
+                        sPrinterServer = words[2];
+                        sPrinter = words[3];
+                        sModel = "N/A";
+                    }
+                }
+            }
+            ListViewItem item1 = new ListViewItem(sPrinter);
+            item1.SubItems.Add(sPrinterServer);
+            item1.SubItems.Add(sModel);
+            listView1.Items.Add(item1);
         }
 
         public async Task ParseCSV()
@@ -672,7 +793,7 @@ namespace Add_Application
             ConnectionOptions options = new ConnectionOptions();
             options.Impersonation = System.Management.ImpersonationLevel.Impersonate;
 
-            if (printerServerUsername != null && printerServerPassword != null)
+            if (printerServerUsername != null && printerServerPassword != null && printerServerUsername != "" && printerServerPassword != "")
             {
                 options.Username = printerServerUsername;
                 options.Password = printerServerPassword;
@@ -696,23 +817,51 @@ namespace Add_Application
                 //return null;
             }
         }
+        public async Task ParseSccm()
+        {
+            //Pull Printers From SCCM
+            await Task.Run(() =>
+            {
+                List<string> applications = QueryApplicationsInFolder(connectionManager, applicationFolderID);
+                foreach (string application in applications)
+                {
+                    if (bCancel == true)
+                    {
+                        listBox1.BeginInvoke(new MyDelegate(updateListBox), "----------------------------------------------------------------------CANCELED--------------------------------------------------------------------------");
+                        //listBox1.BeginInvoke(new MyDelegate(updateListBox), "");
+                        bCancel = false;
+                        return;
+                    }
+                    if (application != null || application != "")
+                    {
+                        listView1.Invoke((System.Action)(() =>
+                        {
+                            ListViewItem item1 = new ListViewItem(application);
+                            item1.SubItems.Add("");
+                            item1.SubItems.Add("");
+                            listView1.Items.Add(item1);
+                        }));
+                    }
+                }
+            });
+        }
 
         public async Task ParseServer()
         {
             if (textBox1.Text != "")
             {
-                ManagementObjectCollection queryCollection;
-                try
-                {
-                   queryCollection = QueryPrinterServer(textBox1.Text);
-                }
-                catch (Exception e)
-                {
-                    System.Windows.Forms.MessageBox.Show("Could not connect to " + textBox1.Text + "\n" + e.Message);
-                    return;
-                }
                 await Task.Run(() =>
                 {
+                    ManagementObjectCollection queryCollection;
+                    try
+                    {
+                        queryCollection = QueryPrinterServer(textBox1.Text);
+                    }
+                    catch (Exception e)
+                    {
+                        System.Windows.Forms.MessageBox.Show("Could not connect to " + textBox1.Text + "\n" + e.Message);
+                        return;
+                    }
                     foreach (ManagementObject m in queryCollection)
                     {
                         if (bCancel == true)
@@ -769,18 +918,27 @@ namespace Add_Application
                         parameter = arg;
                     }
                 }
-                string installCommand = "rundll32 printui.dll,PrintUIEntry /in /n \"\\\\" + sPrinterServer + "\\" + sPrinter + "\"";
-                string uninstallCommand = "rundll32 printui.dll,PrintUIEntry /dn /n \"\\\\" + sPrinterServer + "\\" + sPrinter + "\"";
+
+                //string installCommand = "rundll32 printui.dll,PrintUIEntry /in /n \"\\\\" + sPrinterServer + "\\" + sPrinter + "\"";
+                //string uninstallCommand = "rundll32 printui.dll,PrintUIEntry /dn /n \"\\\\" + sPrinterServer + "\\" + sPrinter + "\"";
+                string uninstallCommand = "rundll32 printui.dll,PrintUIEntry /dn /n \"\\\\" + sPrinterServer + "\\" + sPrinter + "\" /q & rundll32 printui.dll,PrintUIEntry /gd /n \"\\\\" + sPrinterServer + "\\" + sPrinter + "\" /q";
+                string installCommand = uninstallCommand + " & rundll32 printui.dll,PrintUIEntry /in /n \"\\\\" + sPrinterServer + "\\" + sPrinter + "\" /q";
+
+                if (parameter == "device" || deviceColRadio.Checked)
+                {
+                    installCommand = uninstallCommand + " & rundll32 printui.dll,PrintUIEntry /ga /n \"\\\\" + sPrinterServer + "\\" + sPrinter + "\"";
+                }
+
                 IResultObject collection = QueryCollections(connectionManager, sPrinter);
                 if (collection == null)
                 {
                     int objectType = objTypeUserCollection; //5001
                     int collectionFolder = userCollectionFolderID;
-                    if (parameter == "printserver")
+                    if (parameter == "user" || userColRadio.Checked)
                     {
                         collectionFolder = userCollectionFolderID;
                     }
-                    if (parameter == "device")
+                    if (parameter == "device" || deviceColRadio.Checked)
                     {
                         collectionFolder = machineCollectionFolderID;
                         objectType = objTypeDeviceCollection; //5000
@@ -844,7 +1002,7 @@ namespace Add_Application
                     Microsoft.ConfigurationManagement.ApplicationManagement.Application app = applicationWrapper.InnerAppManObject as Microsoft.ConfigurationManagement.ApplicationManagement.Application;
                     app.DeploymentTypes.Clear();
                     app.Publisher = sModel;
-                    app.DeploymentTypes.Add(CreateScriptDt(app.Title, app.Description, installCommand, uninstallCommand, "return 0;", null, app, sPrinterServer, sPrinter));
+                    app.DeploymentTypes.Add(CreateScriptDt(app.Title, app.Description, installCommand, uninstallCommand, null, app, sPrinterServer, sPrinter));
                     Store(app);
 
                     listBox1.BeginInvoke(new MyDelegate(updateListBox), sPrinter + ": Modified Application...");
@@ -860,7 +1018,7 @@ namespace Add_Application
                 else
                 {
                     int objectType = objTypeApplication; //6000
-                                                         //if (parameter == "printserver")
+                                                         //if (parameter == "user")
                                                          //{
                                                          //    applicationFolder = applicationFolderID;
                                                          //}
@@ -879,7 +1037,7 @@ namespace Add_Application
                     }
 
                     Microsoft.ConfigurationManagement.ApplicationManagement.Application newApplication = CreateApplication(sPrinter, "Printer", sModel, System.Globalization.CultureInfo.CurrentCulture.TwoLetterISOLanguageName);
-                    newApplication.DeploymentTypes.Add(CreateScriptDt(newApplication.Title, newApplication.Description, installCommand, uninstallCommand, "return 0;", null, newApplication, sPrinterServer, sPrinter));
+                    newApplication.DeploymentTypes.Add(CreateScriptDt(newApplication.Title, newApplication.Description, installCommand, uninstallCommand, null, newApplication, sPrinterServer, sPrinter));
                     Store(newApplication);
 
                     listBox1.BeginInvoke(new MyDelegate(updateListBox), sPrinter + ": Created Application...");
@@ -953,7 +1111,7 @@ namespace Add_Application
                     {
                         if (appItem != null)
                         {
-                            if (parameter != "device" | parameter != "printserver")
+                            if (1 == 1)//parameter != "device" | parameter != "printserver")
                             {
                                 try
                                 {
@@ -983,7 +1141,7 @@ namespace Add_Application
                             }
                         }
                     }
-                    listBox1.BeginInvoke(new MyDelegate(updateListBox), sPrinter + ": Applicaton Deployment Exists...");
+                    listBox1.BeginInvoke(new MyDelegate(updateListBox), sPrinter + ": Application Deployment Exists...");
                     if (bCancel == true)
                     {
                         listBox1.BeginInvoke(new MyDelegate(updateListBox), "----------------------------------------------------------------------CANCELED--------------------------------------------------------------------------");
@@ -1005,9 +1163,12 @@ namespace Add_Application
             listBox1.Items.Add(input);
             listBox1.TopIndex = listBox1.Items.Count - 1;
             listBox1.EndUpdate();
-
         }
 
+        public bool deviceColRadioChecked()
+        {
+            return deviceColRadio.Checked;
+        }
         public WqlQueryResultsObject GetApplications(WqlConnectionManager connection, string printerName)
         {
 
@@ -1171,11 +1332,11 @@ namespace Add_Application
                 CancellationToken token;
                 if (parameter == "remove" || parameter == "/remove" || Remove.Checked == true)
                 {
-                    await Task.Run(() => RemovePrinter(items),token);
+                    await Task.Run(() => RemovePrinter(items), token);
                 }
                 else
                 {
-                    await Task.Run(() => AddPrinter(items),token);
+                    await Task.Run(() => AddPrinter(items), token);
                 }
             }
             Cancel.Enabled = false; Cancel.Visible = false; Cancel.Text = "Cancel";
@@ -1306,6 +1467,9 @@ namespace Add_Application
                 {
                     label2.Text = "Example: PrinterName or Browse";
                 }
+                useSccm.Enabled = true;
+                availableRadio.Enabled = false;
+                requiredRadio.Enabled = false;
 
             }
             else
@@ -1326,6 +1490,9 @@ namespace Add_Application
                 {
                     label2.Text = "Example: \\\\PrinterServer\\Printer or Browse";
                 }
+                useSccm.Enabled = false;
+                availableRadio.Enabled = true;
+                requiredRadio.Enabled = true;
             }
         }
 
@@ -1340,24 +1507,31 @@ namespace Add_Application
             Remove.Enabled = false;
             List.Enabled = false;
 
-            if (checkBox1.Checked == true)
+            if (Remove.Checked && useSccm.Checked)
             {
-                await ParseServer();
+                await ParseSccm();
             }
             else
             {
-                if (textBox1.Text.Contains(".csv"))
+                if (checkBox1.Checked == true)
                 {
-                    await ParseCSV();
+                    await ParseServer();
                 }
                 else
                 {
-                    ParseText();
+                    if (textBox1.Text.Contains(".csv"))
+                    {
+                        await ParseCSV();
+                    }
+                    else
+                    {
+                        ParseText();
+                    }
                 }
             }
 
-            Cancel.Enabled = false;Cancel.Visible = false;Cancel.Text = "Cancel";
-            if (!checkBox1.Checked) { button2.Enabled = true;}
+            Cancel.Enabled = false; Cancel.Visible = false; Cancel.Text = "Cancel";
+            if (!checkBox1.Checked) { button2.Enabled = true; }
             runButton.Enabled = true; runButton.Visible = true;
             textBox1.Enabled = true;
             checkBox1.Enabled = true;
@@ -1403,5 +1577,31 @@ namespace Add_Application
         {
             listBox1.Items.Clear();
         }
+
+        //private void RadioButtons_CheckedChanged(object sender, EventArgs e)
+        //{
+
+        //    if (availableRadio.Checked)
+        //    {
+        //        offerTypeId = 2;
+        //    }
+        //    else
+        //    {
+        //        offerTypeId = 0;
+        //    }
+
+        //    if (userColRadio.Checked)
+        //    {
+        //        collectionType = 1;
+        //        limitToCollectionID = "SMS00004";
+        //        limitToCollectionName = "All Users and User Groups";
+        //    }
+        //    else
+        //    {
+        //        collectionType = 2;
+        //        limitToCollectionID = "SMS00001";
+        //        limitToCollectionName = "All Systems";
+        //    }
+        //}
     }
 }
