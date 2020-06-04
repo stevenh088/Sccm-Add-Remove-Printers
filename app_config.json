@@ -1,0 +1,16 @@
+{
+	//Required settings
+	"siteCode": "ABC",
+	"serverName": "MyServer",
+	"userCollectionFolderName": "Printers_user",
+	"machineCollectionFolderName": "Printers_device",
+	"applicationFolderName": "Printers_applications",
+	"allPrintersCollectionName": "All Printers",
+	"allPrintersCollectionID": "ABC000123",
+	//Optional settings
+	"sccmUsername": "contoso\\username",
+	"sccmPassword": "mypassword",
+	"printerServerName": "my-printer_server",
+	"printerServerUsername": "contoso\\username",
+	"printerServerPassword": "mypassword"
+}
