@@ -271,7 +271,7 @@ namespace Add_Application
             installer.DetectionScript.Text = 
 @"
 $array = @()
-$computername = $env: COMPUTERNAME
+$computername = $env:COMPUTERNAME
 $printersKey = ""SOFTWARE\Microsoft\Windows NT\CurrentVersion\Print\Connections\""
 $reg=[microsoft.win32.registrykey]::OpenRemoteBaseKey('LocalMachine',$computername,'Registry64')
 $regkey=$reg.OpenSubKey($printersKey) 
@@ -279,15 +279,15 @@ $subkeys=$regkey.GetSubKeyNames()
 $printerFound = $false
 foreach($key in $subkeys){
 
-$thisKey=$printersKey+$key 
+    $thisKey=$printersKey+$key 
 
-$printer = Get-ItemProperty -Path ""HKLM:\$thiskey"" | Select -ExpandProperty Printer
+    $printer = Get-ItemProperty -Path ""HKLM:\$thiskey"" | Select -ExpandProperty Printer
 
-If ($printer -eq """ + "\\\\" + printerServer + "\\" + printerName + @""")
-{
-    $printerFound = $true
-    break
-}
+    If ($printer -eq """ + "\\\\" + printerServer + "\\" + printerName + @""")
+    {
+        $printerFound = $true
+        break
+    }
 
 } 
 
