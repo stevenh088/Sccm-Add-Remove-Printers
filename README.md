@@ -1,4 +1,4 @@
-<h1> Sccm Add/Remove Printers</h1>
+<h1> System Center Configuration Manager, Add/Remove Printers</h1>
 
 <h2>Description</h2>
 A tool to add or remove printers from to sccm using a csv, direct name, or from a printer server.
