@@ -10,6 +10,7 @@ This tool could be modified to add another type of application in bulk, it would
 <ol>
   <li>Build the application</li>
   <li>Change app_config.json to match your environment</li>
+  <li>Create any necessary folders/collections in System Center needed by app_config.json</li>
   <li>Place app_config.json and PrinterIcon.png into the debug/release folder</li>
 </ol>
 
