@@ -1,4 +1,4 @@
-﻿using Microsoft.ConfigurationManagement.AdminConsole.AppManFoundation;
+using Microsoft.ConfigurationManagement.AdminConsole.AppManFoundation;
 using Microsoft.ConfigurationManagement.ApplicationManagement;
 using Microsoft.ConfigurationManagement.DesiredConfigurationManagement;
 using Microsoft.ConfigurationManagement.DesiredConfigurationManagement.ExpressionOperators;
@@ -269,8 +269,7 @@ namespace Add_Application
             //string scriptText = "$array = @()"+ Environment.NewLine + "$computername = $env:COMPUTERNAME"+ Environment.NewLine + "$printersKey = "+ ((char)34) + "SOFTWARE" + ((char)92) + "Microsoft"+ ((char)92) + "Windows NT" + ((char)92) + " CurrentVersion" + ((char)92) + " Print" + ((char)92) + " Connections" + ((char)34) +""+ Environment.NewLine + "$reg=[microsoft.win32.registrykey]::OpenRemoteBaseKey('LocalMachine',$computername,'Registry64')"+ Environment.NewLine + "$regkey=$reg.OpenSubKey($printersKey)"+ Environment.NewLine + "$subkeys=$regkey.GetSubKeyNames()"+ Environment.NewLine + "$printerFound = $false"+ Environment.NewLine + "foreach($key in $subkeys){"+ Environment.NewLine + "$thisKey=$printersKey+$key "+ Environment.NewLine + "$printer = Get-ItemProperty -Path "+ ((char)34) + "HKLM:" + ((char)92) + " $thiskey" + ((char)34) +" | Select -ExpandProperty Printer"+ Environment.NewLine + "If ($printer -eq "+ ((char)34) + ((char)92) + ((char)92) + printerServer + ((char)92) + printerName + ")"+ Environment.NewLine + "{"+ Environment.NewLine + "$printerFound = $true"+ Environment.NewLine + "break"+ Environment.NewLine + "}"+ Environment.NewLine + "} "+ Environment.NewLine + "If ($printerFound)"+ Environment.NewLine + "{"+ Environment.NewLine + "Write-Host "+ ((char)34) +"Found"+ ((char)34) +""+ Environment.NewLine + "}"+ Environment.NewLine + "Else { }";
             //installer.DetectionScript.Text = scriptText.ToString();
             installer.DetectionScript.Text = 
-@"
-$array = @()
+@"$array = @()
 $computername = $env:COMPUTERNAME
 $printersKey = ""SOFTWARE\Microsoft\Windows NT\CurrentVersion\Print\Connections\""
 $reg=[microsoft.win32.registrykey]::OpenRemoteBaseKey('LocalMachine',$computername,'Registry64')
@@ -921,12 +920,12 @@ Else
 
                 //string installCommand = "rundll32 printui.dll,PrintUIEntry /in /n \"\\\\" + sPrinterServer + "\\" + sPrinter + "\"";
                 //string uninstallCommand = "rundll32 printui.dll,PrintUIEntry /dn /n \"\\\\" + sPrinterServer + "\\" + sPrinter + "\"";
-                string uninstallCommand = "rundll32 printui.dll,PrintUIEntry /dn /n \"\\\\" + sPrinterServer + "\\" + sPrinter + "\" /q & rundll32 printui.dll,PrintUIEntry /gd /n \"\\\\" + sPrinterServer + "\\" + sPrinter + "\" /q";
-                string installCommand = uninstallCommand + " & rundll32 printui.dll,PrintUIEntry /in /n \"\\\\" + sPrinterServer + "\\" + sPrinter + "\" /q";
+                string uninstallCommand = "cmd.exe /c \"rundll32 printui.dll,PrintUIEntry /dn /n \"\\\\" + sPrinterServer + "\\" + sPrinter + "\" /q & rundll32 printui.dll,PrintUIEntry /gd /n \"\\\\" + sPrinterServer + "\\" + sPrinter + "\" /q\"";
+                string installCommand = "cmd.exe /c \"rundll32 printui.dll,PrintUIEntry /dn /n \"\\\\" + sPrinterServer + "\\" + sPrinter + "\" /q & rundll32 printui.dll,PrintUIEntry /gd /n \"\\\\" + sPrinterServer + "\\" + sPrinter + "\" /q & rundll32 printui.dll,PrintUIEntry /in /n \"\\\\" + sPrinterServer + "\\" + sPrinter + "\" /q\"";
 
                 if (parameter == "device" || deviceColRadio.Checked)
                 {
-                    installCommand = uninstallCommand + " & rundll32 printui.dll,PrintUIEntry /ga /n \"\\\\" + sPrinterServer + "\\" + sPrinter + "\"";
+                    installCommand = uninstallCommand.Remove(uninstallCommand.Length - 1, 1) + " & rundll32 printui.dll,PrintUIEntry /ga /n \"\\\\" + sPrinterServer + "\\" + sPrinter + "\"";
                 }
 
                 IResultObject collection = QueryCollections(connectionManager, sPrinter);
