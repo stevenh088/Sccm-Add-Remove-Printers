@@ -1,15 +1,32 @@
 {
-	//Required settings
+	//Required settings//
+	
+	//System Center Site Code
 	"siteCode": "ABC",
+	
+	//System Center Server FQDN
 	"serverName": "MyServer",
+	
+	//System Center Folder Where User Deployed Printer Collections Should Go
 	"userCollectionFolderName": "Printers_user",
+	
+	//System Center Folder Where Machine Deployed Printer Collections Should Go
 	"machineCollectionFolderName": "Printers_device",
+	
+	//System Center Folder Where Printer Applications Should Go
 	"applicationFolderName": "Printers_applications",
+	
+	//A User or Machine Collection For All Printers To Be Deployed
 	"allPrintersCollectionName": "All Printers",
 	"allPrintersCollectionID": "ABC000123",
-	//Optional settings
+	
+	//Optional settings//
+	
+	//Alternate Credentials For System Center, Make Empty To Use Logged On User Context
 	"sccmUsername": "contoso\\username",
 	"sccmPassword": "mypassword",
+	
+	//A Print Server and Optional Credentials To Pull Printers From, Make Credentials Empty To Use Logged On User Context
 	"printerServerName": "my-printer_server",
 	"printerServerUsername": "contoso\\username",
 	"printerServerPassword": "mypassword"
